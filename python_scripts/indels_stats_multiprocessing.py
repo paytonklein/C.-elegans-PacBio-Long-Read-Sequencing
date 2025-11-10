@@ -7,6 +7,13 @@ import pandas as pd
 # multiprocessing packages
 from multiprocessing import Pool
 
+# module load statements in unity
+'''
+module load uri/main
+module load Pysam/0.17.0-GCC-11.2.0
+
+'''
+
 # process one sample VCF and return variant data/stats
 def ProcessSample(vcf_path):
     sample = os.path.basename(vcf_path).split('_')[0] # extract the sample from the file name
@@ -58,6 +65,10 @@ if __name__ == "__main__":
     
     # extract all *ann.vcf files from the base dir
     vcf_files = glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
+   
+    print(f"Found {len(vcf_files)} files:")
+    for f in vcf_files:
+        print(f)
 
     print(f"Processing {len(vcf_files)} files using {num_samples} processes")
     
