@@ -54,7 +54,7 @@ def ProcessSample(vcf_path):
 if __name__ == "__main__":
     base_dir = sys.argv[1]      # in this case thats "/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam/""
     output_path = sys.argv[2]   # path to where the output tsv should go
-    num_samples = int(sys.argv[3]) # input number of samples
+    num_samples = int(sys.argv[3]) # input number of samples (n=20)
     
     # extract all *ann.vcf files from the base dir
     vcf_files = glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
