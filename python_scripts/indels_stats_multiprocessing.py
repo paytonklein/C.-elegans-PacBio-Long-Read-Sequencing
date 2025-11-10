@@ -1,113 +1,73 @@
 import os
-import statistics
+import glob
+import re
 import sys
-from collections import defaultdict
-import seaborn as sns
+import pysam
 import pandas as pd
-import matplotlib.pyplot as plt
-
 # multiprocessing packages
 from multiprocessing import Pool
 
-def GetGeneAccession(variant, info_elements):
-    accession = 'NA'
-    # get gene(s) associated with variant
-    for e in info_elements:
-        if e.split('=')[0] == 'ANN':
-            annotations = e.split(',')
-            annotations[0] = annotations[0][4:]
-            for a in annotations:
-                # get variant
-                ann_v = a.split('|')[0]
-                if ann_v == variant:
-                    if a.split('|')[5] in ['transcript', 'protein_coding']:
-                        accession = a.split('|')[6]
-    return accession
-
 # process one sample VCF and return variant data/stats
-def ProcessSample(args):
-    vcf_file, sample, output_dir = args
-    
-    # store the size of indels, number of multiple variants and number of variants
-    insertions = []
-    deletions = []
-    mul_variants = 0
-    num_variants = 0
-    summary_records = []
-    
-    with open(vcf_file, 'r') as f:
-        for count, line in enumerate(f, 1):
-            # ignore header (lines that start with #)
-            if line.rstrip()[0] != '#':
-                # get reference and variant
-                ref = line.rstrip().split('\t')[3]
-                variants = line.rstrip().split('\t')[4]
-                info_elements = line.rstrip().split('\t')[7].split(';')
-                for v in variants:
-                    v_size = int()
-                    v_type = ''
-                    # identify if variant is an insertion or a deletion
-                    if len(ref) > len(v):
-                        v_size = len(ref) - len(v)
-                        v_type = 'deletion'
-                    if len(v) > len(ref):
-                        v_size = len(v) - len(ref)
-                        v_type = 'insertion'
-                        
-                    if v_size >= variant_size_threshold:
-                        num_variants += 1
-                        accession = GetGeneAccession(v, info_elements)
-                        if 'unassigned_transcript_' in accession:
-                            accession = 'NA'
-                        # gather information about each indel and add to the summary records
-                        if v_type == 'insertion':
-                            record = {
-                                'Sample': sample,
-                                'Variant': v, 
-                                'Reference': ref,
-                                'Size': v_size,
-                                'Accession': accession,
-                                'Type': 'insertion'
-                            }
-                            summary_records.append(record)
-                            insertions.append(v_size)
-                        elif v_type == 'deletion':
-                            record = {
-                                'Sample': sample,
-                                'Variant': v, 
-                                'Reference': ref,
-                                'Size': v_size,
-                                'Accession': accession,
-                                'Type': 'deletion'
-                            }
-                            summary_records.append(record)  
-                            deletions.append(v_size)
-                if len(variants) > 1:
-                    mul_variants += 1
-    return summary_records
+def ProcessSample(vcf_path):
+    sample = os.path.basename(vcf_path).split('_')[0] # extract the sample from the file name
+    summary = [] #output 
+        
+    with pysam.VariantFile(vcf_path) as vcf:
+        for entry in vcf.fetch():
+            chrom = entry.chrom     # extract the chromosome
+            pos = entry.pos         # extract the variant position
+            var_id = entry.id or f"{chrom}_{pos}"  # extract variant ID or create one with the chromosome and possition if missing
 
-
+            info = entry.info       # extract the info field from the annotations for each variant
+            
+            # calculate the length of the sv
+            end = info.get("END", pos + len(entry.ref)-1) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
+            len = abs(info.get("SVLEN", end-pos)) # extracts the length or calculates using the end and pos if missing
+            
+            svtype = info.get("SVTYPE", "NA")   # extracts the type (insertion or deletion) or places NA if it doesn't exist
+            
+            # extracting the genes associated with annotation(s) attached to each variant
+            annotations = entry.info.get("ANN", "")
+            if annotations:
+                gene_ids = []
+                for ann in annotations.split(","):  # if multiple annotations, they are split with a comma
+                    fields = ann.split("|")         # each field in the annotations is split by a |
+                    if len(fields) > 4 and fields[4]:
+                        gene_ids.append(fields[4])  # add each gene_id
+                gene_ids_unique = list(set(gene_ids))  # remove any duplicate gene ids
+            else:
+                gene_ids_unique = []
+            
+            # add all info from each variant to the output
+            summary.append({
+                "Sample": sample,
+                "Variant_ID": var_id,
+                "Chromosome": chrom,
+                "Start": pos,
+                "End": end,
+                "Size": len,
+                "Variant_Type": svtype,
+                "Gene_IDs": gene_ids_unique
+            })
+    return summary
+                
 if __name__ == "__main__":
-    vcf_dir = sys.argv[1]
-    output_dir = sys.argv[2]
-    num_samples = int(sys.argv[3])
-    variant_size_threshold = int(sys.argv[4])
+    base_dir = sys.argv[1]      # in this case thats "/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam/""
+    output_path = sys.argv[2]   # path to where the output tsv should go
+    num_samples = int(sys.argv[3]) # input number of samples
+    
+    # extract all *ann.vcf files from the base dir
+    vcf_files = glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
 
-    # creates full paths for each vcf file in the specified directory
-    vcf_files = [os.path.join(vcf_dir, f) for f in os.listdir(vcf_dir) if f.endswith('.vcf')]
-    # creates the triple variable for each sample's vcf for input into the process sample function
-    tasks = [(vcf, os.path.basename(vcf).replace('.vcf', ''), output_dir) for vcf in vcf_files]
-
-    # use the multiprocessing library tools to run in parallel
-    print(f"Runing {len(vcf_files)} samples using {num_samples} processes")
+    print(f"Processing {len(vcf_files)} files using {num_samples} processes")
+    
     with Pool(processes=num_samples) as pool:
-        results = pool.map(ProcessSample, tasks)
+        results = pool.map(ProcessSample, vcf_files)
     
-    all_records = []
-    for records in results:
-        all_records.extend(records)
+    # flatten the list of lists that we get from the multiprocessing
+    all_records = [variant for sample_results in results for variant in sample_results]
     
-    # create combined summary
-    summary_path = os.path.join(output_dir, 'all_samples_cnv_info.tsv')
+    # write the output to a tsv file
     df = pd.DataFrame(all_records)
-    df.to_csv(summary_path, sep='\t', index=False)
+    df.to_csv(output_path, sep="\t", index=False) # writes to the tsv path specified
+    print("\n Saved parsed variants to {output_path}")
