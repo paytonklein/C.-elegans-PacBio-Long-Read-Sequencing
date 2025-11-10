@@ -11,7 +11,7 @@ from multiprocessing import Pool
 '''
 module load uri/main
 module load Pysam/0.17.0-GCC-11.2.0
-
+module load SciPy-bundle/2021.10-foss-2021b
 '''
 
 # process one sample VCF and return variant data/stats
@@ -64,6 +64,10 @@ if __name__ == "__main__":
     num_samples = int(sys.argv[3]) # input number of samples (n=20)
     
     # extract all *ann.vcf files from the base dir
+    vcf_files = [
+        f for f in glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
+        if "snpeff" not in f.lower()]
+    
     vcf_files = glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
    
     print(f"Found {len(vcf_files)} files:")
