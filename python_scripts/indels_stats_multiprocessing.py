@@ -67,9 +67,7 @@ if __name__ == "__main__":
     vcf_files = [
         f for f in glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
         if "snpeff" not in f.lower()]
-    
-    vcf_files = glob.glob(os.path.join(base_dir, "[0-9]*-bc*/gatk/*.ann.vcf"))
-   
+       
     print(f"Found {len(vcf_files)} files:")
     for f in vcf_files:
         print(f)
