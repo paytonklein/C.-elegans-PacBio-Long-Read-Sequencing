@@ -29,7 +29,7 @@ def ProcessSample(vcf_path):
             
             # calculate the length of the sv
             end = info.get("END", pos + len(entry.ref)-1) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
-            len = abs(info.get("SVLEN", end-pos)) # extracts the length or calculates using the end and pos if missing
+            svlen = abs(info.get("SVLEN", end-pos)) # extracts the length or calculates using the end and pos if missing
             
             svtype = info.get("SVTYPE", "NA")   # extracts the type (insertion or deletion) or places NA if it doesn't exist
             
@@ -52,7 +52,7 @@ def ProcessSample(vcf_path):
                 "Chromosome": chrom,
                 "Start": pos,
                 "End": end,
-                "Size": len,
+                "Size": svlen,
                 "Variant_Type": svtype,
                 "Gene_IDs": gene_ids_unique
             })
