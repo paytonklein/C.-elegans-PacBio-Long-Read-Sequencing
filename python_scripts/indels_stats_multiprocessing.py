@@ -2,7 +2,6 @@ import os
 import glob
 import re
 import sys
-import pysam
 import pandas as pd
 # multiprocessing packages
 from multiprocessing import Pool
@@ -10,7 +9,6 @@ from multiprocessing import Pool
 # module load statements in unity
 '''
 module load uri/main
-module load Pysam/0.17.0-GCC-11.2.0
 module load SciPy-bundle/2021.10-foss-2021b
 '''
 
@@ -19,22 +17,28 @@ def ProcessSample(vcf_path):
     sample = os.path.basename(vcf_path).split('_')[0] # extract the sample from the file name
     summary = [] #output 
         
-    with pysam.VariantFile(vcf_path) as vcf:
-        for entry in vcf.fetch():
-            chrom = entry.chrom     # extract the chromosome
-            pos = entry.pos         # extract the variant position
-            var_id = entry.id or f"{chrom}_{pos}"  # extract variant ID or create one with the chromosome and possition if missing
-
-            info = entry.info       # extract the info field from the annotations for each variant
+    with open(vcf_path, 'r') as vcf:
+        for entry in vcf:
+            # ignore header (lines that start with #)
+            if entry.rstrip()[0] != '#':
+                continue
             
-            # calculate the length of the sv
-            end = info.get("END", pos + len(entry.ref)-1) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
-            svlen = abs(info.get("SVLEN", end-pos)) # extracts the length or calculates using the end and pos if missing
+            fields = entry.strip().split('\t')
+            if len(fields) < 8:
+                continue    # skip entries with missing fields
             
-            svtype = info.get("SVTYPE", "NA")   # extracts the type (insertion or deletion) or places NA if it doesn't exist
+            # defining each of the 8 fields
+            chrom, pos, var_id, ref, alt, qual, filt, info = fields[:8]
+            pos = int(pos) # convert to integer
+            info_dict = dict(i.split("=", 1) for i in info.split(";") if "=" in i)
+            
+            # parse for end, svlen and svtype
+            end = int(info_dict.get("END", pos + len(ref) - 1)) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
+            svlen = abs(int(info_dict.get("SVLEN", end-pos))) # extracts the length or calculates using the end and pos if missing
+            svtype = info_dict.get("SVTYPE", "NA")   # extracts the type (insertion or deletion) or places NA if it doesn't exist
             
             # extracting the genes associated with annotation(s) attached to each variant
-            annotations = entry.info.get("ANN", "")
+            annotations = info_dict.get("ANN", "")
             if annotations:
                 gene_ids = []
                 for ann in annotations.split(","):  # if multiple annotations, they are split with a comma
@@ -54,7 +58,7 @@ def ProcessSample(vcf_path):
                 "End": end,
                 "Size": svlen,
                 "Variant_Type": svtype,
-                "Gene_IDs": gene_ids_unique
+                "Gene_IDs": ",".join(gene_ids_unique)
             })
     return summary
                 
