@@ -20,7 +20,7 @@ def ProcessSample(vcf_path):
     with open(vcf_path, 'r') as vcf:
         for entry in vcf:
             # ignore header (lines that start with #)
-            if entry.rstrip()[0] != '#':
+            if entry.startswith('#'):
                 continue
             
             fields = entry.strip().split('\t')
