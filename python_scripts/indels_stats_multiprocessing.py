@@ -29,19 +29,25 @@ def ProcessSample(vcf_path):
             
             # defining each of the 8 fields
             chrom, pos, var_id, ref, alt, qual, filt, info = fields[:8]
+            alt = alt.split(",")
+            alt = alt[0]
             pos = int(pos) # convert to integer
             info_dict = dict(i.split("=", 1) for i in info.split(";") if "=" in i)
-            
-            # testing
-            print("INFO:", info)
-            print("PARSED:", info_dict)
-            break  # stop after first variant
-        
-            # parse for end, svlen and svtype
+
+            length_diff = len(alt) - len(ref)
+            if length_diff > 0:
+                svtype = "insertion"
+            elif length_diff < 0:
+                svtype = "deletion"
+            else:
+                svtype = "substitution"
+            svlen = abs(length_diff)
+            end = pos + len(ref) - 1
+            '''# parse for end, svlen and svtype
             end = int(info_dict.get("END", pos + len(ref) - 1)) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
             svlen = abs(int(info_dict.get("SVLEN", end-pos))) # extracts the length or calculates using the end and pos if missing
             svtype = info_dict.get("SVTYPE", "NA")   # extracts the type (insertion or deletion) or places NA if it doesn't exist
-            
+            '''
             # extracting the genes associated with annotation(s) attached to each variant
             annotations = info_dict.get("ANN", "")
             if annotations:
@@ -53,14 +59,6 @@ def ProcessSample(vcf_path):
                 gene_ids_unique = list(set(gene_ids))  # remove any duplicate gene ids
             else:
                 gene_ids_unique = []
-                
-            '''# identify if variant is an insertion or a deletion
-                    if len(ref) > len(v):
-                        v_size = len(ref) - len(v)
-                        v_type = 'deletion'
-                    if len(v) > len(ref):
-                        v_size = len(v) - len(ref)
-                        v_type = 'insertion' '''
             
             # add all info from each variant to the output
             summary.append({
