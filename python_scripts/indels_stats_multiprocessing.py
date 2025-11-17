@@ -54,8 +54,8 @@ def ProcessSample(vcf_path):
                 gene_ids = []
                 for ann in annotations.split(","):  # if multiple annotations, they are split with a comma
                     fields = ann.split("|")         # each field in the annotations is split by a |
-                    if len(fields) > 4 and fields[4]:
-                        gene_ids.append(fields[4])  # add each gene_id
+                    if len(fields) > 3 and fields[3]:
+                        gene_ids.append(fields[3])  # add each gene_id
                 gene_ids_unique = list(set(gene_ids))  # remove any duplicate gene ids
             else:
                 gene_ids_unique = []
