@@ -1,8 +1,8 @@
 
 library(dplyr)
 
-#input_file <- "/Users/jleighton32/Library/CloudStorage/OneDrive-Personal/C. elegans FCD-2/Long Read Sequencing/Sniffles/Sniffles_merged.tsv"
-#output_file <- "/Users/jleighton32/Library/CloudStorage/OneDrive-Personal/C. elegans FCD-2/Long Read Sequencing/Sniffles/FilteredSVs_Sniffles.tsv"
+input_file <- "/work/pi_nhowlett_uri_edu/jessie/sniffles/per_sample/tsvs/FilteredSVs_Sniffles.tsv"
+output_file <- "/work/pi_nhowlett_uri_edu/jessie/sniffles/per_sample/tsvs/Filtered_WT_SVs_Sniffles.tsv"
 
 df <- read.table(input_file,
                  header = TRUE,
