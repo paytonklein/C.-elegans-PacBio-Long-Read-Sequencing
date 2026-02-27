@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=pbmm2_align
 #SBATCH --array=1-20
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=8G
-#SBATCH --time=24:00:00
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=4G
+#SBATCH --time=04:00:00
 #SBATCH --output=logs/align_%A_%a.out
 #SBATCH --error=logs/align_%A_%a.err
 
