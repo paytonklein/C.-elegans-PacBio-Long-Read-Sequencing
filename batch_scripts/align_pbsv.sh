@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=4G
 #SBATCH --time=04:00:00
-#SBATCH --output=logs/align_%A_%a.out
-#SBATCH --error=logs/align_%A_%a.err
+#SBATCH --output=align_%A_%a.out
+#SBATCH --error=align_%A_%a.err
 
 # activate the conda env
 module load conda/latest
