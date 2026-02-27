@@ -9,7 +9,7 @@
 
 # activate the conda env
 module load conda/latest
-conda activate pbsv
+conda activate pacbiosv
 
 # set file/directory locations
 BASE="/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam"
