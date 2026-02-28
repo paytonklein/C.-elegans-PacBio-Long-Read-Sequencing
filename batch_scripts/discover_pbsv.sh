@@ -18,7 +18,7 @@ ALIGN_DIR="${BASE}/pbsv_aligned"
 DISCOVER_DIR="${BASE}/pbsv_svsig"
 mkdir -p $DISCOVER_DIR
 
-TANDEM_REPEATS="/path/to/tandem_repeats.bed"    # provides repeat annotation - recommended
+#TANDEM_REPEATS="/path/to/tandem_repeats.bed"    # provides repeat annotation - recommended (need bed file)
 
 # get the sample prefix for each sample
 SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" $SAMPLE_LIST)
@@ -26,5 +26,5 @@ BAM="${ALIGN_DIR}/${SAMPLE}.aligned.bam"
 SVSIG="${DISCOVER_DIR}/${SAMPLE}.svsig.gz"
 
 # run pbsv discover to get all of the signatures for the SVs
-pbsv discover $BAM $SVSIG --tandem-repeats $TANDEM_REPEATS
-tabix -c '#' -s 3 -b 4 -e 4 $   # optional but recommended if we need to make a pbsv random call 
+pbsv discover $BAM $SVSIG  #--tandem-repeats $TANDEM_REPEATS
+tabix -c '#' -s 3 -b 4 -e 4 $   # optional but recommended if we need to make a pbsv random call (provides indexing for processing efficiency)
