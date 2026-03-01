@@ -1,0 +1,36 @@
+#!/bin/bash
+#SBATCH --job-name=pbsv_call
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=8G
+#SBATCH --time=04:00:00
+#SBATCH --output=/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam/slurm_logs/call_%j.out
+#SBATCH --error=/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam/slurm_logs/call_%j.err
+
+# activate the conda environment
+module load conda/latest
+conda activate pacbiosv
+
+# file/directory paths
+BASE="/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam"
+REF="/work/pi_nhowlett_uri_edu/Celegans_PacBio_CNV_2025/GCF_000002985.6_WBcel235_genomic.fna"
+SVSIG_DIR="${BASE}/pbsv_svsig"
+OUTVCF="${BASE}/pbsv_variants/all_samples.pbsv.vcf"
+
+mkdir -p "${BASE}/pbsv_variants"
+
+echo "Collecting svsig files..."
+
+# automatically grab all svsig files
+SVSIG_FILES=$(ls ${SVSIG_DIR}/*.svsig.gz)
+
+echo "Running pbsv call..."
+
+# call variants with pbsv
+pbsv call \
+    --ccs \
+    -j ${SLURM_CPUS_PER_TASK} \
+    "$REF" \
+    $SVSIG_FILES \
+    "$OUTVCF"
+
+echo "Finished pbsv call"
