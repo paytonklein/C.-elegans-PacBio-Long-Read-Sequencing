@@ -21,8 +21,7 @@ mkdir -p "${BASE}/pbsv_variants"
 echo "Collecting svsig files..."
 
 # automatically grab all svsig files
-SVSIG_FILES=$(ls ${SVSIG_DIR}/*.svsig.gz)
-
+SVSIG_FILES=("$SVSIG_DIR"/*.svsig.gz)
 echo "Running pbsv call..."
 
 # call variants with pbsv
@@ -30,7 +29,7 @@ pbsv call \
     --ccs \
     -j ${SLURM_CPUS_PER_TASK} \
     "$REF" \
-    $SVSIG_FILES \
+    "${SVSIG_FILES[@]}" \
     "$OUTVCF"
 
 echo "Finished pbsv call"
