@@ -53,13 +53,8 @@ done
 echo "Number of SVSIG files: ${#SVSIG_FILES[@]}"
 
 
-
+set -x
 # call variants with pbsv
-pbsv call \
-    --ccs \
-    -j ${SLURM_CPUS_PER_TASK} \
-    "$REF" \
-    "${SVSIG_FILES[@]}" \
-    "$OUTVCF"
+pbsv call --ccs -j ${SLURM_CPUS_PER_TASK} "$REF" "${SVSIG_FILES[@]}" "$OUTVCF"
 
 echo "Finished pbsv call"
