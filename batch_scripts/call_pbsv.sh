@@ -17,7 +17,7 @@ echo "PATH=$PATH"
 
 # file/directory paths
 BASE="/work/pi_nhowlett_uri_edu/jessie/New-All-20-Bam"
-REF="/work/pi_nhowlett_uri_edu/jessie/reference/WBce1235_genomic.fna"
+REF="/work/pi_nhowlett_uri_edu/jessie/reference/WBce1235_genomic.fa"
 SVSIG_DIR="${BASE}/pbsv_svsig"
 OUTVCF="${BASE}/pbsv_variants/all_samples.pbsv.vcf"
 
