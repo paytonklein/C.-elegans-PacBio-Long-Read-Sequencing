@@ -6,13 +6,13 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=40G
 
-module load STAR
-# or: conda activate star_env
+module load conda/latest
+conda activate binding_sites
 
 STAR \
   --runThreadN 8 \
   --runMode genomeGenerate \
-  --genomeDir /path/to/STAR_index \
-  --genomeFastaFiles /path/to/genome.fa \
-  --sjdbGTFfile /path/to/annotation.gtf \
-  --sjdbOverhang 100
+  --genomeDir /home/payton_klein_uri_edu/HNRNPH1/hg38/STAR_index \
+  --genomeFastaFiles /home/payton_klein_uri_edu/HNRNPH1/hg38/GRCh38.primary_assembly.genome.fa \
+  --sjdbGTFfile /home/payton_klein_uri_edu/HNRNPH1/hg38/gencode.v38.annotation.gtf \
+  --sjdbOverhang 74
