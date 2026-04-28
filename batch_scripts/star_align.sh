@@ -7,6 +7,9 @@
 #SBATCH --mem=32G
 #SBATCH --array=1-4
 
+module load conda/latest
+conda activate binding_sites
+
 set -euo pipefail
 
 # -----------------------------
