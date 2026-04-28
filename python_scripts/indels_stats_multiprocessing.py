@@ -42,7 +42,7 @@ def ProcessSample(vcf_path):
             else:
                 svtype = "substitution"
             svlen = abs(length_diff)
-            end = pos + len(ref) - 1
+        
             '''# parse for end, svlen and svtype
             end = int(info_dict.get("END", pos + len(ref) - 1)) # extracts the end of the variant or estimates based on reference allele len - 1 if missing
             svlen = abs(int(info_dict.get("SVLEN", end-pos))) # extracts the length or calculates using the end and pos if missing
