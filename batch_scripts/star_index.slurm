@@ -12,7 +12,7 @@ conda activate binding_sites
 STAR \
   --runThreadN 8 \
   --runMode genomeGenerate \
-  --genomeDir /home/payton_klein_uri_edu/HNRNPH1/hg38/STAR_index \
-  --genomeFastaFiles /home/payton_klein_uri_edu/HNRNPH1/hg38/GRCh38.primary_assembly.genome.fa \
-  --sjdbGTFfile /home/payton_klein_uri_edu/HNRNPH1/hg38/gencode.v38.annotation.gtf \
+  --genomeDir /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/STAR_index \
+  --genomeFastaFiles /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/GRCh38.primary_assembly.genome.fa \
+  --sjdbGTFfile /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/gencode.v38.annotation.gtf \
   --sjdbOverhang 74
