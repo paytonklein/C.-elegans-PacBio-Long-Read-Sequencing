@@ -1,23 +1,32 @@
 #!/bin/bash
-#SBATCH --job-name=clipper
-#SBATCH --output=clipper.out
-#SBATCH --error=clipper.err
-#SBATCH --time=01:00:00
-#SBATCH --mem=8G
+#SBATCH --job-name=piranha
+#SBATCH --output=piranha.out
+#SBATCH --error=piranha.err
+#SBATCH --time=02:00:00
+#SBATCH --mem=16G
+#SBATCH --cpus-per-task=4
 
 module load conda/latest
-conda activate clipper_env
+conda activate piranha_env
 
-clipper \
-  -b IP_hnRNP-H1.trimmed_Aligned.sortedByCoord.out.bam \
-  -s hg38 \
-  --min-counts 5 \
-  --threshold-method binomial \
-  -o IP_hnRNP-H1_clipper_peaks.bed
+cd /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/STAR_alignments/BAMs
 
-clipper \
-  -b IP_IgG.trimmed_Aligned.sortedByCoord.out.bam \
-  -s hg38 \
-  --min-counts 5 \
-  --threshold-method binomial \
-  -o IP_IgG_clipper_peaks.bed
+# -----------------------------
+# hnRNP-H1 IP vs Input
+# -----------------------------
+Piranha \
+  -b 20 \
+  -s \
+  Input_hnRNP-HI.trimmed_Aligned.sortedByCoord.out.bam \
+  IP_hnRNP-H1.trimmed_Aligned.sortedByCoord.out.bam \
+  > hnRNP-H1_peaks.bed
+
+# -----------------------------
+# IgG control (optional comparison)
+# -----------------------------
+Piranha \
+  -b 20 \
+  -s \
+  Input_IgG.trimmed_Aligned.sortedByCoord.out.bam \
+  IP_IgG.trimmed_Aligned.sortedByCoord.out.bam \
+  > IgG_peaks.bed
