@@ -3,7 +3,7 @@
 #SBATCH --output=piranha.out
 #SBATCH --error=piranha.err
 #SBATCH --time=02:00:00
-#SBATCH --mem=16G
+#SBATCH --mem=40G
 #SBATCH --cpus-per-task=4
 
 module load conda/latest
