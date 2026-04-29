@@ -6,7 +6,7 @@
 #SBATCH --mem=8G
 
 module load conda/latest
-conda activate binding_sites
+conda activate clipper_env
 
 clipper \
   -b IP_hnRNP-H1.trimmed_Aligned.sortedByCoord.out.bam \
