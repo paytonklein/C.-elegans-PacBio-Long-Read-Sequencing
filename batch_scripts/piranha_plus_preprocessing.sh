@@ -6,7 +6,7 @@
 #SBATCH --mem=40G
 
 module load conda/latest
-conda activate piranha_env
+conda activate binding_tools
 
 cd /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/STAR_alignments/BAMs
 
@@ -19,6 +19,9 @@ do
     | grep -E '^@|^chr[0-9XYM]' \
     | samtools view -b > ${f}.filtered.bam
 done
+
+conda deactivate
+conda activate piranha_env
 
 # -----------------------------
 # Step 2: Convert BAM → BED
