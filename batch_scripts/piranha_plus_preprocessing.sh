@@ -7,12 +7,15 @@
 
 module load conda/latest
 conda activate binding_sites
+echo "Active environment name: $CONDA_DEFAULT_ENV"
 
 cd /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/STAR_alignments/BAMs
+pwd
 
 # -----------------------------
 # Step 1: Filter to standard chromosomes
 # -----------------------------
+echo "starting filter to standard chromosomes"
 for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
 do
     samtools view -h ${f}.trimmed_Aligned.sortedByCoord.out.bam \
@@ -20,8 +23,13 @@ do
     | samtools view -b > ${f}.filtered.bam
 done
 
+echo "done chromosome filtering w samtools"
+
 conda deactivate
 conda activate piranha_env
+echo "Active environment name: $CONDA_DEFAULT_ENV"
+
+echo "start converting from bam -> bed"
 
 # -----------------------------
 # Step 2: Convert BAM → BED
@@ -31,6 +39,9 @@ do
     bedtools bamtobed -i ${f}.filtered.bam > ${f}.bed
 done
 
+echo "done converting to bed files"
+
+echo "run Piranha for hnRNP-H1"
 # -----------------------------
 # Step 3: Run Piranha (hnRNP-H1)
 # -----------------------------
@@ -39,6 +50,7 @@ Piranha -b 20 -s \
 IP_hnRNP-H1.bed \
 > hnRNP-H1_peaks.bed
 
+echo "run Piranha for IgG"
 # -----------------------------
 # Step 4: Run Piranha (IgG)
 # -----------------------------
@@ -46,3 +58,5 @@ Piranha -b 20 -s \
 -c Input_IgG.bed \
 IP_IgG.bed \
 > IgG_peaks.bed
+
+echo "done!"
