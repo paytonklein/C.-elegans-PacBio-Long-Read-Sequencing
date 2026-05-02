@@ -18,9 +18,10 @@ pwd
 echo "starting filter to standard chromosomes"
 for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
 do
-    samtools view -b -F 4 ${f}.trimmed_Aligned.sortedByCoord.out.bam > ${f}.filtered.bam
+    samtools view -h ${f}.trimmed_Aligned.sortedByCoord.out.bam \
+    | awk '$1 ~ /^@/ || $3 ~ /^chr([0-9]+|X|Y|M)$/' \
+    | samtools view -b > ${f}.filtered.bam
 done
-
 echo "done chromosome filtering w samtools"
 
 conda deactivate
@@ -38,6 +39,11 @@ do
 done
 
 echo "done converting to bed files"
+
+echo "sanity checks: (hopefully return nothing)"
+cut -f1 IP_hnRNP-H1.bed | sort | uniq > ip.chroms
+cut -f1 Input_hnRNP-HI.bed | sort | uniq > input.chroms
+diff ip.chroms input.chroms
 
 echo "run Piranha for hnRNP-H1"
 # -----------------------------
