@@ -49,7 +49,7 @@ echo "run Piranha for hnRNP-H1"
 # -----------------------------
 # Step 3: Run Piranha (hnRNP-H1)
 # -----------------------------
-Piranha -b 20 -s \
+Piranha -b 20 -s -a 0 \
 -c Input_hnRNP-HI.bed \
 IP_hnRNP-H1.bed \
 > hnRNP-H1_peaks.bed
@@ -58,7 +58,7 @@ echo "run Piranha for IgG"
 # -----------------------------
 # Step 4: Run Piranha (IgG)
 # -----------------------------
-Piranha -b 20 -s \
+Piranha -b 20 -s -a 0 \
 -c Input_IgG.bed \
 IP_IgG.bed \
 > IgG_peaks.bed
