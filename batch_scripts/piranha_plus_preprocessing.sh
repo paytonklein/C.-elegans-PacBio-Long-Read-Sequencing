@@ -18,9 +18,7 @@ pwd
 echo "starting filter to standard chromosomes"
 for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
 do
-    samtools view -h ${f}.trimmed_Aligned.sortedByCoord.out.bam \
-    | grep -E '^@|^chr[0-9XYM]' \
-    | samtools view -b > ${f}.filtered.bam
+    samtools view -b -F 4 ${f}.trimmed_Aligned.sortedByCoord.out.bam > ${f}.filtered.bam
 done
 
 echo "done chromosome filtering w samtools"
