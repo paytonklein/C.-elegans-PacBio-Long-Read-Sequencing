@@ -45,13 +45,22 @@ cut -f1 IP_hnRNP-H1.bed | sort | uniq > ip.chroms
 cut -f1 Input_hnRNP-HI.bed | sort | uniq > input.chroms
 diff ip.chroms input.chroms
 
+echo "sorting bed files" 
+# -----------------------------
+# Step 2.5: Sort BED files (CRITICAL)
+# -----------------------------
+for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
+do
+    sort -k1,1 -k2,2n ${f}.bed > ${f}.sorted.bed
+done
+
 echo "run Piranha for hnRNP-H1"
 # -----------------------------
 # Step 3: Run Piranha (hnRNP-H1)
 # -----------------------------
 Piranha -b 20 -s -a 0 \
--c Input_hnRNP-HI.bed \
-IP_hnRNP-H1.bed \
+-c Input_hnRNP-HI.sorted.bed \
+IP_hnRNP-H1.sorted.bed \
 > hnRNP-H1_peaks.bed
 
 echo "run Piranha for IgG"
@@ -59,8 +68,8 @@ echo "run Piranha for IgG"
 # Step 4: Run Piranha (IgG)
 # -----------------------------
 Piranha -b 20 -s -a 0 \
--c Input_IgG.bed \
-IP_IgG.bed \
+-c Input_IgG.sorted.bed \
+IP_IgG.sorted.bed \
 > IgG_peaks.bed
 
 echo "done!"
