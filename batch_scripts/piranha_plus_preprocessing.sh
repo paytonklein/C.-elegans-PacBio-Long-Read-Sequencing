@@ -21,20 +21,23 @@ do
     samtools view -h ${f}.trimmed_Aligned.sortedByCoord.out.bam \
     | awk '$1 ~ /^@/ || $3 ~ /^chr([0-9]+|X|Y|M)$/' \
     | samtools view -b > ${f}.filtered.bam
+
+    # (optional but recommended fix for idxstats warning)
+    samtools index ${f}.filtered.bam
 done
 
 # -----------------------------
-# Step 2: Create genome file (only runs once)
+# Step 2: Create genome file
 # -----------------------------
 echo "Creating genome file"
 samtools idxstats IP_hnRNP-H1.filtered.bam \
 | awk '$1!="*" {print $1"\t"$2}' > hg38.genome
 
 # -----------------------------
-# Step 3: Make windows (bins)
+# Step 3: Make windows (FIXED)
 # -----------------------------
-echo "Creating 20bp windows"
-bedtools makewindows -g hg38.genome -w 20 > windows.bed
+echo "Creating 100bp windows (fixed for memory stability)"
+bedtools makewindows -g hg38.genome -w 100 > windows.bed
 
 # -----------------------------
 # Step 4: Compute coverage per bin
