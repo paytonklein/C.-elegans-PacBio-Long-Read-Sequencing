@@ -13,7 +13,7 @@ cd /scratch4/workspace/payton_klein_uri_edu-CMB320/hg38/STAR_alignments/BAMs
 pwd
 
 # -----------------------------
-# Step 1: Filter to standard chromosomes
+# Step 1: Filter BAMs
 # -----------------------------
 echo "Filtering BAMs"
 for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
@@ -24,36 +24,49 @@ do
 done
 
 # -----------------------------
-# Step 2: BAM → CLEAN BED6 (CRITICAL FIX)
+# Step 2: Create genome file (only runs once)
 # -----------------------------
-echo "Converting to clean BED6"
+echo "Creating genome file"
+samtools idxstats IP_hnRNP-H1.filtered.bam \
+| awk '$1!="*" {print $1"\t"$2}' > hg38.genome
+
+# -----------------------------
+# Step 3: Make windows (bins)
+# -----------------------------
+echo "Creating 20bp windows"
+bedtools makewindows -g hg38.genome -w 20 > windows.bed
+
+# -----------------------------
+# Step 4: Compute coverage per bin
+# -----------------------------
+echo "Generating binned coverage"
 for f in IP_hnRNP-H1 Input_hnRNP-HI IP_IgG Input_IgG
 do
-    bedtools bamtobed -i ${f}.filtered.bam \
-    | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",$5,$6}' \
-    | sort -k1,1 -k2,2n > ${f}.clean.bed
+    bedtools coverage -a windows.bed -b ${f}.filtered.bam \
+    | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",$5,"+"}' \
+    > ${f}.binned.bed
 done
 
 # -----------------------------
-# Switch environment for Piranha
+# Switch environment
 # -----------------------------
 conda deactivate
 conda activate piranha_env
 echo "Active environment name: $CONDA_DEFAULT_ENV"
 
 # -----------------------------
-# Step 3: Run Piranha
+# Step 5: Run Piranha
 # -----------------------------
 echo "Running Piranha (hnRNP-H1)"
-Piranha -b 20 -s -a 0 \
--c Input_hnRNP-HI.clean.bed \
-IP_hnRNP-H1.clean.bed \
+Piranha -s -a 0 \
+-c Input_hnRNP-HI.binned.bed \
+IP_hnRNP-H1.binned.bed \
 > hnRNP-H1_peaks.bed
 
 echo "Running Piranha (IgG)"
-Piranha -b 20 -s -a 0 \
--c Input_IgG.clean.bed \
-IP_IgG.clean.bed \
+Piranha -s -a 0 \
+-c Input_IgG.binned.bed \
+IP_IgG.binned.bed \
 > IgG_peaks.bed
 
 echo "Done"
