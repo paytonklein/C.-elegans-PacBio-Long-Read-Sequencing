@@ -3,7 +3,7 @@
 #SBATCH --output=piranha.out
 #SBATCH --error=piranha.err
 #SBATCH --time=02:00:00
-#SBATCH --mem=40G
+#SBATCH --mem=64G
 
 module load conda/latest
 conda activate binding_sites
