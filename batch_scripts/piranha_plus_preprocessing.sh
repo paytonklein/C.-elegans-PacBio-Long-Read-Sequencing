@@ -2,7 +2,7 @@
 #SBATCH --job-name=piranha
 #SBATCH --output=piranha.out
 #SBATCH --error=piranha.err
-#SBATCH --time=02:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=64G
 
 module load conda/latest
@@ -31,7 +31,7 @@ done
 # -----------------------------
 echo "Creating genome file"
 samtools idxstats IP_hnRNP-H1.filtered.bam \
-| awk '$1!="*" {print $1"\t"$2}' > hg38.genome
+| awk '$1 ~ /^chr([0-9]+|X|Y|M)$/ {print $1"\t"$2}' > hg38.genome
 
 # -----------------------------
 # Step 3: Make windows (FIXED)
